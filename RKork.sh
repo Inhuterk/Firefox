@@ -10,12 +10,12 @@ array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 
 # Function to generate IPv6 address segments
 ip64() {
-    echo "${array[<span class="math-inline">RANDOM % 16\]\}</span>{array[<span class="math-inline">RANDOM % 16\]\}</span>{array[<span class="math-inline">RANDOM % 16\]\}</span>{array[$RANDOM % 16]}"
+    echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
 }
 
 # Function to generate a full IPv6 address with subnet
 gen64() {
-    echo "<span class="math-inline">1\:</span>(ip64):<span class="math-inline">\(ip64\)\:</span>(ip64):$(ip64)"
+    echo "1:$(ip64):$(ip64):$(ip64)"
 }
 
 # Function to install 3proxy
@@ -58,14 +58,15 @@ EOF
 # Function to generate user proxy file
 gen_proxy_file_for_user() {
     cat >proxy.txt <<EOF
-$(awk -F "/" '{print $3 ":" $4 ":" $1 ":" $2 }' <span class="math-inline">\{WORKDATA\}\)
+$(awk -F "/" '{print $3 ":" $4 ":" $1 ":" $2 }' ${WORKDATA})
 EOF
-\}
-\# Function to upload proxy data
-upload\_proxy\(\) \{
-local PASS\=</span>(random)  # Generate random password
-    zip --password "<span class="math-inline">PASS" proxy\.zip proxy\.txt  \# Add double quotes for password
-URL\=</span>(curl -s --upload-file proxy.zip https://transfer.sh/proxy.zip)
+}
+
+# Function to upload proxy data
+upload_proxy() {
+    local PASS=$(random)  # Generate random password
+    zip --password "$PASS" proxy.zip proxy.txt
+    URL=$(curl -s --upload-file proxy.zip https://transfer.sh/proxy.zip)
 
     echo "Proxy is ready! Format: IP:PORT:LOGIN:PASS"
     echo "Download zip archive from: ${URL}"
@@ -74,23 +75,24 @@ URL\=</span>(curl -s --upload-file proxy.zip https://transfer.sh/proxy.zip)
 
 # Function to generate proxy data
 gen_data() {
-    seq $FIRST_PORT <span class="math-inline">LAST\_PORT \| while read port; do
-username\="usr</span>(random)/pass$(random)"
-        # Use $IP4 directly instead of external_ip variable (potential issue)
-        echo "$username/$PASS/$IP4/<span class="math-inline">port/</span>(gen64 $IP4)"
+    seq $FIRST_PORT $LAST_PORT | while read port; do
+        username="usr$(random)/pass$(random)"
+        echo "$username/$PASS/$IP4/$port/$(gen64 $IP4)"
     done
 }
 
 # Function to generate iptables rules
 gen_iptables() {
-    cat <<EOF
-    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 " -m state --state NEW -j ACCEPT"}' ${WORKDATA})
-EOF
+    awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 " -m state --state NEW -j ACCEPT"}' ${WORKDATA}
 }
 
 # Function to generate ifconfig commands (if needed for IPv6 assignment)
 gen_ifconfig() {
     # Check if user needs IPv6 assignment and modify accordingly
     if [[ "$USE_IPV6" == "true" ]]; then
-        cat <<EOF
-        $(awk -F "/" '{print "ifconfig eth0
+        awk -F "/" '{print "ifconfig eth0 ..."
+    fi
+}
+
+# Rest of your script...
+
