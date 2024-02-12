@@ -25,7 +25,7 @@ install_3proxy() {
     cp src/3proxy /usr/local/etc/3proxy/bin/
     cp ./scripts/rc.d/proxy.sh /etc/init.d/3proxy
     chmod +x /etc/init.d/3proxy
-    chkconfig 3proxy on  # Assuming CentOS 7 or earlier; use 'systemctl' for CentOS 8 or later
+    chkconfig 3proxy on  # Assuming you are using CentOS 7 or earlier; use 'systemctl' for CentOS 8 or later
     cd $WORKDIR
 }
 
@@ -49,7 +49,7 @@ $(awk -F "/" '{print "auth strong\n" \
 EOF
 }
 
-# ... (rest of the script remains unchanged)
+# ... (Rest of the functions remain unchanged)
 
 echo "installing apps"
 yum -y install gcc net-tools bsdtar zip >/dev/null
@@ -83,7 +83,19 @@ cat >>/etc/rc.local <<EOF
 bash ${WORKDIR}/boot_iptables.sh
 bash ${WORKDIR}/boot_ifconfig.sh
 ulimit -n 10048
+
+echo "Checking 3proxy service status:"
+service 3proxy status
+
+echo "Checking 3proxy logs:"
+cat /usr/local/etc/3proxy/logs/3proxy.log
+
+echo "Starting 3proxy service:"
 service 3proxy start
+
+echo "Checking 3proxy service status again:"
+service 3proxy status
+
 EOF
 
 bash /etc/rc.local
