@@ -90,7 +90,9 @@ gen_iptables() {
 gen_ifconfig() {
     # Check if user needs IPv6 assignment and modify accordingly
     if [[ "$USE_IPV6" == "true" ]]; then
-        awk -F "/" '{print "ifconfig eth0 ..."
+        cat <<EOF
+        ifconfig eth0 ...
+EOF
     fi
 }
 
