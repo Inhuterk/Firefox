@@ -20,7 +20,7 @@ install_3proxy() {
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
     wget -qO- $URL | tar xzf -
     cd 3proxy-3proxy-0.8.6
-    make -f Makefile.Linux
+    sudo make -f Makefile.Linux  # Updated line with 'sudo'
     mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     
     # Ensure 3proxy executable is created successfully
@@ -58,3 +58,43 @@ EOF
 
 # ... (rest of the script remains unchanged)
 
+echo "installing apps"
+sudo yum -y install gcc net-tools bsdtar zip >/dev/null  # Updated line with 'sudo'
+
+install_3proxy
+
+echo "working folder = /home/proxy-installer"
+WORKDIR="/home/proxy-installer"
+WORKDATA="${WORKDIR}/data.txt"
+mkdir $WORKDIR && cd $_
+
+IP4=$(curl -4 -s icanhazip.com)
+IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
+
+echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
+
+echo "How many proxies do you want to create? Example: 500"
+read COUNT
+
+FIRST_PORT=10000
+LAST_PORT=$(($FIRST_PORT + $COUNT))
+
+gen_data >$WORKDIR/data.txt
+gen_iptables >$WORKDIR/boot_iptables.sh
+gen_ifconfig >$WORKDIR/boot_ifconfig.sh
+chmod +x ${WORKDIR}/boot_*.sh /etc/rc.local
+
+gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg
+
+cat >>/etc/rc.local <<EOF
+bash ${WORKDIR}/boot_iptables.sh
+bash ${WORKDIR}/boot_ifconfig.sh
+ulimit -n 10048
+service 3proxy start
+EOF
+
+bash /etc/rc.local
+
+gen_proxy_file_for_user
+
+upload_proxy
