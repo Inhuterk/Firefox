@@ -1,5 +1,4 @@
 #!/bin/sh
-
 random() {
 	tr </dev/urandom -dc A-Za-z0-9 | head -c5
 	echo
@@ -16,13 +15,11 @@ gen64() {
 
 install_3proxy() {
     echo "installing 3proxy"
-    URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
+    URL="https://raw.githubusercontent.com/ngochoaitn/multi_proxy_ipv6/main/3proxy-3proxy-0.8.6.tar.gz"
     wget -qO- $URL | bsdtar -xvf-
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
-    mkdir -p /usr/local/etc/3proxy/bin
-    mkdir -p /usr/local/etc/3proxy/logs
-    mkdir -p /usr/local/etc/3proxy/stat
+    mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     cp src/3proxy /usr/local/etc/3proxy/bin/
     cp ./scripts/rc.d/proxy.sh /etc/init.d/3proxy
     chmod +x /etc/init.d/3proxy
@@ -39,8 +36,14 @@ timeouts 1 5 30 60 180 1800 15 60
 setgid 65535
 setuid 65535
 flush
+auth strong
 
-$(awk -F "/" '{print "proxy -6 -n -a -p" $4 " -i" $3 " -e"$5"\n"}' ${WORKDATA})
+users Inhuman//Inhuman// $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
+
+$(awk -F "/" '{print "auth strong\n" \
+"allow " $1 "\n" \
+"proxy -6 -n -a -p" $4 " -i" $3 " -e"$5"\n" \
+"flush\n"}' ${WORKDATA})
 EOF
 }
 
@@ -61,14 +64,14 @@ upload_proxy() {
 }
 
 gen_data() {
-    seq $FIRST_PORT $LAST_PORT | while read port; do
-        echo "usr$(random)/pass$(random)/$IP4/$port/$(gen64 $IP6)"
+    for port in $(seq $FIRST_PORT $LAST_PORT); do
+        echo "Inhuman//Inhuman//$IP4/$port/$(gen64 $IP6)"
     done
 }
 
 gen_iptables() {
     cat <<EOF
-    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
+$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
 EOF
 }
 
@@ -93,7 +96,7 @@ IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
 echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 
-echo "How many proxies do you want to create? Example: 500"
+echo "How many proxy do you want to create? Example 500"
 read COUNT
 
 FIRST_PORT=10000
