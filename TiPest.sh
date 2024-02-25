@@ -62,6 +62,8 @@ EOF
 
 bash /etc/rc.local
 
+# Add your logic for gen_data here, if needed
+
 gen_proxy_file_for_user
 
 upload_proxy
