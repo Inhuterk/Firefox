@@ -21,12 +21,7 @@ $(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
-# Define the gen_data function or remove the line calling it
-gen_data() {
-    # Add your gen_data logic here
-}
-
-# ... (rest of the script remains unchanged)
+# ...
 
 echo "installing apps"
 yum -y install gcc net-tools bsdtar zip >/dev/null
@@ -49,8 +44,9 @@ read COUNT
 FIRST_PORT=10000
 LAST_PORT=$(($FIRST_PORT + $COUNT))
 
-# Call gen_data only if it's defined
-[ "$(type -t gen_data)" = "function" ] && gen_data >$WORKDIR/data.txt
+# Comment out the line calling gen_data
+# gen_data >$WORKDIR/data.txt
+
 gen_iptables >$WORKDIR/boot_iptables.sh
 gen_ifconfig >$WORKDIR/boot_ifconfig.sh
 chmod +x ${WORKDIR}/boot_*.sh /etc/rc.local
