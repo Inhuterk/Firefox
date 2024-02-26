@@ -80,12 +80,12 @@ EOF
 
 gen_ifconfig() {
     cat <<EOF
-$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA})
+$(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
 echo "Installing required packages"
-dnf install -y gcc net-tools bsdtar zip wget >/dev/null
+yum install -y gcc net-tools bsdtar zip wget >/dev/null
 
 install_3proxy
 
@@ -95,7 +95,7 @@ WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
 IP4=$(curl -4 -s icanhazip.com)
-IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
+IP6="2406:b400:75"
 
 echo "Internal IP = ${IP4}. External sub for IPv6 = ${IP6}"
 
