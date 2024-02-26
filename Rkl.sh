@@ -15,23 +15,18 @@ gen64() {
 }
 
 install_3proxy() {
-    echo "Installing 3proxy"
+    echo "installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
-    wget -qO- $URL | tar -zxvf -
+    curl -s $URL | tar -xzv --strip-components=1
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
-    mkdir -p /usr/local/etc/3proxy/bin
-    mkdir -p /usr/local/etc/3proxy/logs
-    mkdir -p /usr/local/etc/3proxy/stat
+    mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     cp src/3proxy /usr/local/etc/3proxy/bin/
     cp ./scripts/rc.d/proxy.sh /etc/init.d/3proxy
     chmod +x /etc/init.d/3proxy
-    systemctl enable 3proxy
+    chkconfig 3proxy on
     cd $WORKDIR
 }
-
-DNS4="8.8.8.8"
-DNS5="1.1.1.1"
 
 gen_3proxy() {
     cat <<EOF
@@ -67,6 +62,7 @@ upload_proxy() {
     echo "Proxy is ready! Format IP:PORT:LOGIN:PASS"
     echo "Download zip archive from: ${URL}"
     echo "Password: ${PASS}"
+
 }
 
 gen_data() {
@@ -84,27 +80,27 @@ EOF
 gen_ifconfig() {
     cat <<EOF
 $(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
-echo "nameserver $DNS4" >> /etc/resolv.conf
-echo "nameserver $DNS5" >> /etc/resolv.conf
+echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 EOF
 }
 
-echo "Installing required packages"
-yum install -y gcc net-tools bsdtar zip wget >/dev/null
+echo "installing apps"
+yum -y install gcc net-tools bsdtar zip >/dev/null
 
 install_3proxy
 
-echo "Setting up working folder: /home/proxy-installer"
+echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
 IP4=$(curl -4 -s icanhazip.com)
-IP6="2406:b400:75"
+IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
-echo "Internal IP = ${IP4}. External sub for IPv6 = ${IP6}"
+echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 
-echo "How many proxies do you want to create? Example: 500"
+echo "How many proxy do you want to create? Example 500"
 read COUNT
 
 FIRST_PORT=10000
