@@ -83,7 +83,7 @@ $(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/48"}' ${WORKDATA})
 EOF
 }
 
-if [ "$#" -ne 1 ]; then
+if [ $# -eq 0 ]; then
     echo "Usage: $0 <number_of_proxies>"
     exit 1
 fi
