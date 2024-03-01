@@ -18,11 +18,11 @@ install_3proxy() {
     echo "installing 3proxy"
     URL="https://raw.githubusercontent.com/ngochoaitn/multi_proxy_ipv6/main/3proxy-3proxy-0.8.6.tar.gz"
     wget -qO- $URL | tar -xzvf-
-    cd 3proxy-3proxy-0.8.6 || exit 1
+    cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     cp src/3proxy /usr/local/etc/3proxy/bin/
-    cd "$WORKDIR" || exit 1
+    cd $WORKDIR
 }
 
 gen_3proxy() {
@@ -36,31 +36,31 @@ setuid 65535
 flush
 auth strong
 
-users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' "${WORKDATA}")
+users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
 
 $(awk -F "/" '{print "auth strong\n" \
 "allow " $1 "\n" \
 "proxy -6 -n -a -p" $4 " -i" $3 " -e"$5"\n" \
-"flush\n"}' "${WORKDATA}")
+"flush\n"}' ${WORKDATA})
 EOF
 }
 
 gen_ifconfig() {
     cat <<EOF
-$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/48"}' "${WORKDATA}")
+$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/48"}' ${WORKDATA})
 EOF
 }
 
 echo "installing apps"
 apt-get update
-apt-get install -y gcc net-tools libssl-dev bsdtar zip || exit 1
+apt-get install -y gcc net-tools libssl-dev bsdtar zip >/dev/null
 
 install_3proxy
 
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
-mkdir "$WORKDIR" && cd "$_" || exit 1
+mkdir $WORKDIR && cd $_
 
 IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
@@ -68,15 +68,15 @@ IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 
 echo "How many proxy do you want to create? Example 500"
-read -r COUNT
+read COUNT
 
 FIRST_PORT=10000
-LAST_PORT=$((FIRST_PORT + COUNT))
+LAST_PORT=$(($FIRST_PORT + $COUNT))
 
-gen_data >"${WORKDIR}/data.txt"
-gen_iptables >"${WORKDIR}/boot_iptables.sh"
-gen_ifconfig >"${WORKDIR}/boot_ifconfig.sh"
-chmod +x "${WORKDIR}/boot_"*.sh
+gen_data >$WORKDIR/data.txt
+gen_iptables >$WORKDIR/boot_iptables.sh
+gen_ifconfig >$WORKDIR/boot_ifconfig.sh
+chmod +x ${WORKDIR}/boot_*.sh
 
 gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg
 
