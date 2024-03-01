@@ -83,6 +83,13 @@ $(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/48"}' ${WORKDATA})
 EOF
 }
 
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <number_of_proxies>"
+    exit 1
+fi
+
+COUNT=$1
+
 echo "Installing apps"
 install_3proxy
 
@@ -95,12 +102,6 @@ IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
 echo "Internal IP = ${IP4}. External subnet for IPv6 = ${IP6}"
-
-echo "How many proxies do you want to create? Example: 500"
-read COUNT
-
-FIRST_PORT=10000
-LAST_PORT=$((FIRST_PORT + COUNT))
 
 gen_data >$WORKDIR/data.txt
 gen_iptables >$WORKDIR/boot_iptables.sh
