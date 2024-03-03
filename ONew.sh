@@ -6,9 +6,9 @@ array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 
 gen64() {
 	ip64() {
-		echo "${array[<span class="math-inline">RANDOM % 16\]\}</span>{array[<span class="math-inline">RANDOM % 16\]\}</span>{array[<span class="math-inline">RANDOM % 16\]\}</span>{array[$RANDOM % 16]}"
+		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
 	}
-	echo "<span class="math-inline">1\:</span>(ip64):<span class="math-inline">\(ip64\)\:</span>(ip64):$(ip64)"
+	echo "1:$(ip64):$(ip64):$(ip64):$(ip64)"
 }
 
 install_3proxy() {
@@ -65,27 +65,31 @@ upload_proxy() {
 }
 
 gen_data() {
-    seq $FIRST_PORT <span class="math-inline">LAST\_PORT \| while read port; do
-echo "usr</span>(random)/pass$(random)/$IP4/<span class="math-inline">port/</span>(gen64 <span class="math-inline">IP6\)"
-done
-\}
-\# Removed gen\_iptables and gen\_ifconfig functions\: These involve potential system configuration changes and require careful security considerations\. Implement them only after thorough understanding and risk mitigation strategies\.
+    seq $FIRST_PORT $LAST_PORT | while read port; do
+        echo "usr$(random)/pass$(random)/$IP4/$port/$(gen64 $IP6)"
+    done
+}
+
 echo "installing apps"
-yum \-y install gcc net\-tools bsdtar zip \>/dev/null
-\# Install 3proxy \(replace with secure download steps mentioned earlier\)
-<0\>install\_3proxy
-echo "working folder \= /home/proxy\-installer"
-WORKDIR\="/home/proxy\-installer"
-WORKDATA\="</span>{WORKDIR}/data.txt"
-mkdir $WORKDIR && cd <span class="math-inline">\_
-IP4\=</span>(curl -4 -s icanhazip.com)
+yum -y install gcc net-tools bsdtar zip >/dev/null
+
+install_3proxy
+
+echo "working folder = /home/proxy-installer"
+WORKDIR="/home/proxy-installer"
+WORKDATA="${WORKDIR}/data.txt"
+mkdir $WORKDIR && cd $_
+
+IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
-echo "Internal ip = ${IP4}. External sub for ip6 = <span class="math-inline">\{IP6\}"
+echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
+
 echo "How many proxy do you want to create? Example 500"
 read COUNT
-FIRST\_PORT\=10000
-LAST\_PORT\=</span>(($FIRST_PORT + $COUNT))
+
+FIRST_PORT=10000
+LAST_PORT=$(($FIRST_PORT + $COUNT))
 
 gen_data >$WORKDIR/data.txt
 
