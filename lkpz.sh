@@ -102,7 +102,7 @@ read COUNT
 
 FIRST_PORT=10000
 
-LAST_PORT=$(expr $FIRST_PORT + $COUNT)
+LAST_PORT=$(echo "$FIRST_PORT + $COUNT" | bc)
 
 
 gen_data >$WORKDIR/data.txt
