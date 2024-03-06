@@ -9,14 +9,12 @@ gen64() {
     ip64() {
         echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
     }
-    echo "$1:$(ip64):$(ip64):$(ip64):$(ip64):$(ip64):$(ip64):$(ip64):$(ip64)"
+    echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
 }
 
 install_3proxy() {
     echo "installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
-    yum update -y
-    yum -y install curl wget nano make
     wget -qO- $URL | bsdtar -xvf-
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
@@ -58,21 +56,12 @@ EOF
 
 upload_proxy() {
     local PASS=$(random)
-    local FILENAME="proxy.txt"
-    local ZIPFILE="proxy.zip"
-
-    # Create zip file
-    zip --password $PASS $ZIPFILE $FILENAME
-
-    # Upload zip file using curl
-    URL=$(curl --upload-file $ZIPFILE --progress-bar https://transfer.sh/$ZIPFILE)
+    zip --password $PASS proxy.zip proxy.txt
+    URL=$(curl -s --upload-file proxy.zip https://transfer.sh/proxy.zip)
 
     echo "Proxy is ready! Format IP:PORT:LOGIN:PASS"
     echo "Download zip archive from: ${URL}"
     echo "Password: ${PASS}"
-
-    # Cleanup: remove temporary files
-    rm $ZIPFILE $FILENAME
 }
 
 gen_data() {
@@ -89,7 +78,7 @@ EOF
 
 gen_ifconfig() {
     cat <<EOF
-$(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/48"}' ${WORKDATA})
+$(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
@@ -131,5 +120,4 @@ EOF
 bash /etc/rc.local
 
 gen_proxy_file_for_user
-
 upload_proxy
