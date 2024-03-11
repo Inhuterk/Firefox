@@ -1,3 +1,7 @@
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Inhuterk/Firefox/main/Nothing.sh)"
 
 wget -qO- https://raw.githubusercontent.com/Inhuterk/Firefox/main/Blackbox.sh | bash
+
+firewall-cmd --permanent --zone=public --add-port=10000-11000/tcp
+
+service network restart
