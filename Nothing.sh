@@ -12,13 +12,13 @@ install_wget() {
 
 # Additional configurations
 IPV6_PRIVACY="no"
-IPV6ADDR=$(ip -6 addr show ens | awk '/inet6/{print $2}' | head -n 1)
+IPV6ADDR=$(ip -6 addr show ens33 | awk '/inet6/{print $2}' | head -n 1)
 DEFAULTGW=$(ip -6 route show default | awk '/via/{print $3}' | head -n 1)
 
 # resolvconf doesn't recognize more than 3 nameservers
-DNS1=$(nmcli device show ens | awk '/IP4.DNS\[/{print $2}' | head -n 1)
-DNS2=$(nmcli device show ens | awk '/IP4.DNS\[/{print $2}' | sed -n 2p)
-OBDNS3=$(nmcli device show ens | awk '/IP4.DNS\[/{print $2}' | sed -n 3p)
+DNS1=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | head -n 1)
+DNS2=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 2p)
+OBDNS3=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 3p)
 DNS4="8.8.8.8"
 DNS5="1.1.1.1"
 
@@ -27,8 +27,8 @@ DNS5="1.1.1.1"
 # we'll go with PREFIX since it seems to be preferred.
 
 # IP assignment for ens33
-IPADDR0=$(nmcli device show ens | awk '/IP4.ADDRESS\[/{print $2}' | cut -f1 -d'/')
-PREFIX0=$(nmcli device show ens | awk '/IP4.ADDRESS\[/{print $2}' | cut -f2 -d'/')
+IPADDR0=$(nmcli device show ens33 | awk '/IP4.ADDRESS\[/{print $2}' | cut -f1 -d'/')
+PREFIX0=$(nmcli device show ens33 | awk '/IP4.ADDRESS\[/{print $2}' | cut -f2 -d'/')
 
 array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 gen64() {
@@ -110,7 +110,7 @@ EOF
 
 gen_ifconfig() {
     cat <<EOF
-$(awk -F "/" '{print "ifconfig ens inet6 add " $5 "/64"}' ${WORKDATA})
+$(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
