@@ -1,34 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 random() {
     tr </dev/urandom -dc A-Za-z0-9 | head -c5
     echo
 }
-
-# Install wget
-install_wget() {
-    echo "Installing wget"
-    yum -y install wget >/dev/null
-}
-
-# Additional configurations
-IPV6_PRIVACY="no"
-IPV6ADDR=$(ip -6 addr show ens33 | awk '/inet6/{print $2}' | head -n 1)
-DEFAULTGW=$(ip -6 route show default | awk '/via/{print $3}' | head -n 1)
-
-# resolvconf doesn't recognize more than 3 nameservers
-DNS1=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | head -n 1)
-DNS2=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 2p)
-OBDNS3=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 3p)
-DNS4="8.8.8.8"
-DNS5="1.1.1.1"
-
-# Sysconfig.txt says that PREFIX takes precedence over
-# NETMASK when both are present. Since both aren't necessary,
-# we'll go with PREFIX since it seems to be preferred.
-
-# IP assignment for ens33
-IPADDR0=$(nmcli device show ens33 | awk '/IP4.ADDRESS\[/{print $2}' | cut -f1 -d'/')
-PREFIX0=$(nmcli device show ens33 | awk '/IP4.ADDRESS\[/{print $2}' | cut -f2 -d'/')
 
 array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 gen64() {
@@ -38,16 +12,12 @@ gen64() {
     echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
 }
 
-install_apps() {
-    echo "Installing apps"
-    yum -y install gcc net-tools bsdtar zip >/dev/null
-}
-
 install_3proxy() {
-    echo "Installing 3proxy"
+    echo "installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
-    install_wget
-    wget -qO- $URL | tar -xzvf -
+    yum update -y
+    yum -y install curl wget nano make
+    wget -qO- $URL | bsdtar -xvf-
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/bin
@@ -94,8 +64,8 @@ upload_proxy() {
     echo "Proxy is ready! Format IP:PORT:LOGIN:PASS"
     echo "Download zip archive from: ${URL}"
     echo "Password: ${PASS}"
-}
 
+}
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
         echo "usr$(random)/pass$(random)/$IP4/$port/$(gen64 $IP6)"
@@ -114,7 +84,19 @@ $(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
-echo "Working folder = /home/proxy-installer"
+echo "installing apps"
+yum -y install gcc net-tools bsdtar zip >/dev/null
+
+# resolvconf doesn't recognize more than 3 nameservers
+DNS1=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | head -n 1)
+DNS2=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 2p)
+OBDNS3=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 3p)
+DNS4="8.8.8.8"
+DNS5="8.8.4.4"
+
+install_3proxy
+
+echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
@@ -122,9 +104,9 @@ mkdir $WORKDIR && cd $_
 IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
-echo "Internal IP = ${IP4}. External subnet for IP6 = ${IP6}"
+echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 
-echo "How many proxies do you want to create? Example 500"
+echo "How many proxy do you want to create? Example 500"
 read COUNT
 
 FIRST_PORT=10000
@@ -147,4 +129,5 @@ EOF
 bash /etc/rc.local
 
 gen_proxy_file_for_user
+
 upload_proxy
