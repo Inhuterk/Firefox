@@ -1,9 +1,12 @@
 #!/bin/sh
+
 random() {
     tr </dev/urandom -dc A-Za-z0-9 | head -c5
     echo
 }
+
 array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
+
 gen64() {
     ip64() {
         echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
@@ -14,8 +17,8 @@ gen64() {
 install_3proxy() {
     echo "installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
-    yum -y install curl wget nano make
-    wget -qO- $URL | bsdtar -xvf
+    yum -y install curl wget nano make bsdtar >/dev/null
+    wget -qO- $URL | bsdtar -xvf -
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/bin
@@ -64,6 +67,7 @@ upload_proxy() {
     echo "Password: ${PASS}"
 
 }
+
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
         echo "usr$(random)/pass$(random)/$IP4/$port/$(gen64 $IP6)"
@@ -83,7 +87,7 @@ EOF
 }
 
 echo "installing apps"
-yum -y install gcc net-tools bsdtar zip >/dev/null
+yum -y install curl wget nano make gcc net-tools >/dev/null
 
 # resolvconf doesn't recognize more than 3 nameservers
 DNS1=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | head -n 1)
