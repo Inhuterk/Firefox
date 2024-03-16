@@ -17,7 +17,7 @@ gen64() {
 install_3proxy() {
     echo "installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
-    yum -y install curl wget nano make bsdtar >/dev/null
+    yum -y install curl wget nano make 
     wget -qO- $URL | bsdtar -xvf -
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
