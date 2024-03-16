@@ -17,7 +17,6 @@ gen64() {
 install_3proxy() {
     echo "Installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
-    yum update -y
     yum -y install curl wget nano make
     wget -qO- $URL | bsdtar -xvf-
     cd 3proxy-3proxy-0.8.6
