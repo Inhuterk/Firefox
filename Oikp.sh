@@ -15,12 +15,11 @@ gen64() {
 }
 
 install_3proxy() {
-    echo "installing 3proxy"
-    
+    echo "Installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
     yum update -y
-    yum -y install curl wget nano make 
-    wget -qO- $URL | bsdtar -xvf -
+    yum -y install curl wget nano make
+    wget -qO- $URL | bsdtar -xvf-
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/bin
@@ -30,7 +29,6 @@ install_3proxy() {
     cp ./scripts/rc.d/proxy.sh /etc/init.d/3proxy
     chmod +x /etc/init.d/3proxy
     chkconfig 3proxy on
-    systemctl enable 3proxy
     cd $WORKDIR
 }
 
@@ -49,7 +47,7 @@ users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
 
 $(awk -F "/" '{print "auth strong\n" \
 "allow " $1 "\n" \
-"proxy -6 -n -a -p" $4 " -i" $3 " -e"$5"\n" \
+"proxy -64 -n -a -p" $4 " -i" $3 " -e"$5"\n" \
 "flush\n"}' ${WORKDATA})
 EOF
 }
@@ -79,7 +77,7 @@ gen_data() {
 
 gen_iptables() {
     cat <<EOF
-$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
+$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 " -m state --state NEW -j ACCEPT"}' ${WORKDATA})
 EOF
 }
 
@@ -89,10 +87,10 @@ $(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
-echo "installing apps"
-yum -y install curl wget nano make gcc net-tools >/dev/null
+echo "Installing apps"
+yum -y install gcc net-tools bsdtar zip >/dev/null
 
-# resolvconf doesn't recognize more than 3 nameservers
+# Resolvconf doesn't recognize more than 3 nameservers
 DNS1=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | head -n 1)
 DNS2=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 2p)
 OBDNS3=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 3p)
@@ -101,7 +99,7 @@ DNS5="8.8.4.4"
 
 install_3proxy
 
-echo "working folder = /home/proxy-installer"
+echo "Working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
@@ -109,9 +107,9 @@ mkdir $WORKDIR && cd $_
 IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
-echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
+echo "Internal IP = ${IP4}. External sub for IP6 = ${IP6}"
 
-echo "How many proxy do you want to create? Example 500"
+echo "How many proxies do you want to create? Example: 500"
 read COUNT
 
 FIRST_PORT=10000
