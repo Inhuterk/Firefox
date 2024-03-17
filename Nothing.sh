@@ -99,7 +99,15 @@ install_3proxy
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
-mkdir "$WORKDIR" && cd "$_" || exit
+
+# Check if the directory exists before attempting to create it
+if [ ! -d "$WORKDIR" ]; then
+    mkdir "$WORKDIR" || { echo "Failed to create directory $WORKDIR"; exit 1; }
+else
+    echo "Directory $WORKDIR already exists"
+fi
+
+cd "$WORKDIR" || exit
 
 IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
