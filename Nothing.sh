@@ -14,9 +14,13 @@ gen64() {
 install_3proxy() {
     echo "installing 3proxy"
     URL="https://raw.githubusercontent.com/quayvlog/quayvlog/main/3proxy-3proxy-0.8.6.tar.gz"
-    yum update -y
+    
+    yum -y install gcc net-tools bsdtar zip >/dev/null
+    
     yum -y install curl wget nano make
+    
     wget -qO- $URL | bsdtar -xvf-
+    
     cd 3proxy-3proxy-0.8.6
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/bin
@@ -89,14 +93,6 @@ EOF
 }
 
 echo "installing apps"
-yum -y install gcc net-tools bsdtar zip >/dev/null
-
-# resolvconf doesn't recognize more than 3 nameservers
-DNS1=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | head -n 1)
-DNS2=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 2p)
-OBDNS3=$(nmcli device show ens33 | awk '/IP4.DNS\[/{print $2}' | sed -n 3p)
-DNS4="8.8.8.8"
-DNS5="8.8.4.4"
 
 install_3proxy
 
