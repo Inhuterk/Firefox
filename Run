@@ -7,4 +7,17 @@ firewall-cmd --permanent --zone=public --add-port=10000-11000/tcp
 service network restart
 
 
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Inhuterk/Light/main/Pest.sh)"
+
+service network restart
+
 nano /etc/sysconfig/network-scripts/ifcfg-ens33
+
+#IPV6_PRIVACY="no"
+IPV6ADDR=2406:b400:75::/48
+
+IPADDR0=192.168.0.25
+PREFIX0=24
+
+DEFAULTGW=fe80::1
+
