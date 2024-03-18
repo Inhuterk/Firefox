@@ -31,4 +31,11 @@ systemctl start firewalld
 firewall-cmd --zone=public --add-service=ssh --permanent
 firewall-cmd --reload
 
+Music:
+yum -y install curl wget nano make
 
+wget https://raw.githubusercontent.com/vtopx123/multiipv6/master/install.sh
+
+chmod +x install.sh 
+
+bash install.sh
