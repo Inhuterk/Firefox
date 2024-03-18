@@ -1,6 +1,0 @@
-sudo yum install kernel-3.10.0-1160.102.1.el7
-
-
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-sudo reboot
-
