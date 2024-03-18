@@ -21,3 +21,9 @@ PREFIX0=24
 
 DEFAULTGW=fe80::1
 
+
+systemctl start firewalld
+firewall-cmd --zone=public --add-service=ssh --permanent
+firewall-cmd --reload
+
+
