@@ -39,3 +39,22 @@ wget https://raw.githubusercontent.com/vtopx123/multiipv6/master/install.sh
 chmod +x install.sh 
 
 bash install.sh
+
+
+#!/bin/bash
+
+# Update repositories
+sudo yum update -y
+
+# Install Grub 2
+sudo yum install -y grub2
+
+# Install latest available kernel version
+sudo yum install -y kernel
+
+# Configure Grub 2
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# Reboot system
+sudo reboot
+
