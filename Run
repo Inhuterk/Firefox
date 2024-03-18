@@ -20,6 +20,11 @@ IPADDR0=192.168.0.25
 PREFIX0=24
 
 DEFAULTGW=fe80::1
+systemctl status 3proxy.service
+
+
+
+firewall-cmd --permanent --zone=public --add-port=10000-11000/tcp
 
 
 systemctl start firewalld
