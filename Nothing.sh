@@ -92,7 +92,7 @@ gen_ifconfig() {
 
 echo "installing apps"
 
-install_3proxy
+install_3proxy || { echo "Failed to install 3proxy"; exit 1; }
 
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
@@ -123,16 +123,16 @@ gen_iptables >"$WORKDIR/boot_iptables.sh"
 gen_ifconfig >"$WORKDIR/boot_ifconfig.sh"
 chmod +x "${WORKDIR}/boot_*.sh" /etc/rc.local
 
-gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg
+gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg || { echo "Failed to generate 3proxy configuration"; exit 1; }
 
 cat >>/etc/rc.local <<EOF
 bash ${WORKDIR}/boot_iptables.sh
 bash ${WORKDIR}/boot_ifconfig.sh
 ulimit -n 10048
-service 3proxy start
+service 3proxy start || { echo "Failed to start 3proxy service"; exit 1; }
 EOF
 
-bash /etc/rc.local
+bash /etc/rc.local || { echo "Failed to execute /etc/rc.local"; exit 1; }
 
 gen_proxy_file_for_user
 
