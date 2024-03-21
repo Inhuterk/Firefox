@@ -97,6 +97,7 @@ install_3proxy || { echo "Failed to install 3proxy"; exit 1; }
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
+mkdir $WORKDIR && cd $_
 
 # Check if the directory exists before attempting to create it
 if [ ! -d "$WORKDIR" ]; then
@@ -115,13 +116,12 @@ echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 echo "How many proxy do you want to create? Example 500"
 read -r COUNT
 
-FIRST_PORT=10000
-LAST_PORT=$((FIRST_PORT + COUNT))
+FIRST_PORT=22000
+LAST_PORT=22099
 
 gen_data >"$WORKDIR/data.txt"
 gen_iptables >"$WORKDIR/boot_iptables.sh"
 gen_ifconfig >"$WORKDIR/boot_ifconfig.sh"
-chmod +x "${WORKDIR}/boot_*.sh" /etc/rc.local
 
 gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg || { echo "Failed to generate 3proxy configuration"; exit 1; }
 
