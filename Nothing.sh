@@ -32,7 +32,9 @@ install_3proxy() {
     cp src/3proxy /usr/local/etc/3proxy/bin/
     cp ./scripts/rc.d/proxy.sh /etc/init.d/3proxy
     chmod +x /etc/init.d/3proxy
-    chkconfig 3proxy on
+    systemctl daemon-reload
+    systemctl enable 3proxy
+    systemctl start 3proxy
     cd "$WORKDIR" || exit
 }
 
@@ -97,7 +99,7 @@ install_3proxy || { echo "Failed to install 3proxy"; exit 1; }
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
-mkdir $WORKDIR && cd $_
+mkdir "$WORKDIR" && cd "$WORKDIR" || { echo "Failed to create or change directory to $WORKDIR"; exit 1; }
 
 # Check if the directory exists before attempting to create it
 if [ ! -d "$WORKDIR" ]; then
@@ -117,7 +119,7 @@ echo "How many proxy do you want to create? Example 500"
 read -r COUNT
 
 FIRST_PORT=22000
-LAST_PORT=22099
+LAST_PORT=$((FIRST_PORT + COUNT))
 
 gen_data >"$WORKDIR/data.txt"
 gen_iptables >"$WORKDIR/boot_iptables.sh"
@@ -129,7 +131,7 @@ cat >>/etc/rc.local <<EOF
 bash ${WORKDIR}/boot_iptables.sh
 bash ${WORKDIR}/boot_ifconfig.sh
 ulimit -n 10048
-service 3proxy start || { echo "Failed to start 3proxy service"; exit 1; }
+systemctl start 3proxy || { echo "Failed to start 3proxy service"; exit 1; }
 EOF
 
 bash /etc/rc.local || { echo "Failed to execute /etc/rc.local"; exit 1; }
