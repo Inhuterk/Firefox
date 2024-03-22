@@ -90,11 +90,11 @@ WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
-IP4=$(curl -4 -s icanhazip.com)
+IP4=$(curl -4 -s 172.105.158.155)
 
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
-echo "Internal ip = 172.105.158.155. External sub for ip6 = ${IP6}"
+echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 
 echo "How many proxy do you want to create? Example 500"
 read COUNT
