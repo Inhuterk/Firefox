@@ -1,4 +1,3 @@
-
 #!/bin/sh
 
 random() {
@@ -43,18 +42,14 @@ setgid 65535
 setuid 65535
 stacksize 6291456 
 flush
-auth strong
 
-$(awk -F "/" '{print "auth strong\n" \
-"allow " $1 "\n" \
-"proxy -6 -n -a -p " $2 " -i " $3 " -e " $4 "\n" \
-"flush\n"}' "${WORKDATA}")
+$(awk -F "/" '{print "proxy -6 -n -a -p" $2 "\n" }' "${WORKDATA}")
 EOF
 }
 
 gen_proxy_file_for_user() {
     cat >proxy.txt <<EOF
-$(awk -F "/" '{print $2 ":" $4 }' ${WORKDATA})
+$(awk -F "/" '{print $3 ":" $4 ":" $1 ":" $2 }' ${WORKDATA})
 EOF
 }
 
@@ -72,12 +67,14 @@ gen_data() {
 }
 
 gen_iptables() {
-    awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $2 " -m state --state NEW -j ACCEPT"}' ${WORKDATA}
+    cat <<EOF
+$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $2 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
+EOF
 }
 
 gen_ifconfig() {
     cat <<EOF
-$(awk -F "/" '{print "ifconfig eth0 inet6 add " $3 "/64"}' ${WORKDATA})
+$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
@@ -91,9 +88,8 @@ WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
-IP4=$(curl -4 -s icanhazip.com)
-
-IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
+IP4="172.105.158.155"
+IP6=$(curl -6 -s icanhazip.com | cut -f1-2 -d':')
 
 echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 
