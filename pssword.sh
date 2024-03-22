@@ -5,15 +5,6 @@ random() {
     echo
 }
 
-array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
-
-gen64() {
-    ip64() {
-        echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
-    }
-    echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
-}
-
 install_3proxy() {
     echo "installing 3proxy"
     URL="https://github.com/z3APA3A/3proxy/archive/3proxy-0.8.6.tar.gz"
@@ -42,16 +33,12 @@ setgid 65535
 setuid 65535
 stacksize 6291456 
 flush
-auth strong
 
-$(awk -F "/" '{print "auth strong\n" \
-"allow * * * *"\n" \
-"proxy -6 -n -a -p" $2 "\n" \
-"flush\n"}' "${WORKDATA}")
+$(awk -F "/" '{print "proxy -6 -n -a -p" $2 "\n" }' "${WORKDATA}")
 EOF
 }
 
-gen_proxy_file_for_user() {
+gen_proxy_file() {
     cat >proxy.txt <<EOF
 $(awk -F "/" '{print $1 ":" $2 }' ${WORKDATA})
 EOF
@@ -60,7 +47,7 @@ EOF
 upload_proxy() {
     local PASS=$(random)
     zip --password $PASS proxy.zip proxy.txt
-    echo "Proxy is ready! Format IP:PORT:LOGIN:PASS"
+    echo "Proxy is ready! Format IP:PORT"
     echo "Password: ${PASS}"
 }
 
@@ -86,7 +73,7 @@ WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
-echo "How many proxy do you want to create? Example 500"
+echo "How many proxies do you want to create? Example: 500"
 read COUNT
 
 FIRST_PORT=22000
@@ -106,6 +93,6 @@ EOF
 
 bash /etc/rc.local
 
-gen_proxy_file_for_user
+gen_proxy_file
 
 upload_proxy
