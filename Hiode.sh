@@ -57,15 +57,14 @@ EOF
 }
 
 upload_proxy() {
-    local PASS=$(random)
-    zip --password $PASS proxy.zip proxy.txt
+    proxy.txt
     echo "Proxy is ready! Format IP:PORT"
-    echo "Password: ${PASS}"
+    
 }
 
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
-        echo "$IP4/$port"
+        echo "$IP4/$port"(gen64 $IP6)"
     done
 }
 
