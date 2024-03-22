@@ -9,9 +9,9 @@ array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 
 gen64() {
     ip64() {
-        echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+        echo "$(ip6calc --randprefix --randhost 64 | awk '/Global/ {print $4}')"
     }
-    echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
+    echo "$1:$(ip64)"
 }
 
 install_3proxy() {
@@ -73,15 +73,11 @@ gen_data() {
 }
 
 gen_iptables() {
-    cat <<EOF
-$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
-EOF
+    awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 " -m state --state NEW -j ACCEPT"}' ${WORKDATA}
 }
 
 gen_ifconfig() {
-    cat <<EOF
-$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA})
-EOF
+    awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA}
 }
 
 echo "installing apps"
