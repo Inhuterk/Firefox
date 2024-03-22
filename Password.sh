@@ -1,16 +1,17 @@
 #!/bin/sh
 
 random() {
-	tr </dev/urandom -dc A-Za-z0-9 | head -c5
-	echo
+    tr </dev/urandom -dc A-Za-z0-9 | head -c5
+    echo
 }
 
 array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
+
 gen64() {
-	ip64() {
-		echo "${array[<span class="math-inline">RANDOM % <1\>16\]\}</span>{array[<span class="math-inline">RANDOM % 16\]\}</span>{array[<span class="math-inline">RANDOM % 16\]\}</span>{array[$RANDOM % 16]}"
-	}
-	echo "<span class="math-inline">1\:</span>(ip64):<span class="math-inline">\(ip64\)\:</span>(ip64):$(ip64)"
+    ip64() {
+        echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+    }
+    echo "1:$(ip64):$(ip64):$(ip64):$(ip64)"
 }
 
 install_3proxy() {
@@ -44,50 +45,53 @@ flush
 # Uncommented to explicitly disable authentication
 # auth strong
 
-users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" <span class="math-inline">2 " "\}' "</span>{WORKDATA}")
+$(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" 2 " "}' "${WORKDATA}")
 
 $(awk -F "/" '{print "allow " $1 "\n" \
-"proxy -6 -n -a -p" $4 " -i" $3 " -e"<span class="math-inline">5"\\n" \\
-"flush\\n"\}' "</span>{WORKDATA}")
+"proxy -6 -n -a -p" $4 " -i" $3 " -e" 5 "\n" \
+"flush\n"}' "${WORKDATA}")
 EOF
 }
 
 gen_proxy_file_for_user() {
     cat >proxy.txt <<EOF
-$(awk -F "/" '{print $3 ":" $4 }' <span class="math-inline">\{WORKDATA\}\)
-EOF</3\>
-\}
-upload\_proxy\(\) \{
-local PASS\=</span>(random)
+$(awk -F "/" '{print $3 ":" $4 }' ${WORKDATA})
+EOF
+}
+
+upload_proxy() {
+    local PASS=$(random)
     zip --password $PASS proxy.zip proxy.txt
     echo "Proxy is ready! Format IP:PORT"
 }
 
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
-        echo "$IP4/<span class="math-inline">port/</span>(gen64 $IP6)"
+        echo "$IP4/$port/$(gen64 $IP6)"
     done
 }
 
 gen_iptables() {
     cat <<EOF
-    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
+$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
 EOF
 }
 
 gen_ifconfig() {
     cat <<EOF
-$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' <span class="math-inline">\{WORKDATA\}\)
+$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
-\}
+}
+
 echo "installing apps"
-yum \-y install gcc net\-tools bsdtar zip \>/<0\>dev/null
-install\_3proxy
-echo "working folder \= /home/proxy\-installer"
-WORKDIR\="/home/proxy\-installer"</1\>
-WORKDATA\="</span>{WORKDIR}/data.txt"
-mkdir $WORKDIR && cd <span class="math-inline">\_
-IP4\=</span>(curl -4 -s icanhazip.com)
+yum -y install gcc net-tools bsdtar zip >/dev/null
+install_3proxy
+echo "working folder = /home/proxy-installer"
+WORKDIR="/home/proxy-installer"
+WORKDATA="${WORKDIR}/data.txt"
+mkdir $WORKDIR && cd $_
+
+IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
 echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
@@ -96,4 +100,24 @@ echo "How many proxy do you want to create? Example 500"
 read COUNT
 
 FIRST_PORT=22000
-LAST_PORT=2209
+LAST_PORT=22099
+
+gen_data > $WORKDIR/data.txt
+gen_iptables > $WORKDIR/boot_iptables.sh
+gen_ifconfig > $WORKDIR/boot_ifconfig.sh
+chmod +x ${WORKDIR}/boot_*.sh /etc/rc.local
+
+gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg
+
+cat >>/etc/rc.local <<EOF
+bash ${WORKDIR}/boot_iptables.sh
+bash ${WORKDIR}/boot_ifconfig.sh
+ulimit -n 10048
+systemctl start 3proxy
+EOF
+
+bash /etc/rc.local
+
+gen_proxy_file_for_user
+
+upload_proxy
