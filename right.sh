@@ -124,3 +124,9 @@ bash /etc/rc.local
 gen_proxy_file_for_user
 
 upload_proxy
+
+service network restart
+
+sleep 10
+
+watch -n 1 cat proxy.txt
