@@ -1,4 +1,4 @@
-%%shell
+
 #!/bin/bash
 
 ln -fs /usr/share/zoneinfo/Africa/Johannesburg /etc/localtime
