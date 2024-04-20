@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Proxy settings
+export http_proxy="socks5://sipuwfea:e90ia636sn8t@38.154.227.167:5868"
+export https_proxy="socks5://sipuwfea:e90ia636sn8t@38.154.227.167:5868"
+
 # Update and install docker.io
 sudo apt update && sudo apt install -y docker.io
 
